@@ -7,7 +7,7 @@ def GetYear(st, year_list):
     col = st.columns((0.6, 0.3, 1), gap='medium')
 
     with col[1]:
-        selected_year = st.selectbox('Select a year', ['All'] + year_list)
+        selected_year = st.sidebar.selectbox('Select a year', ['All'] + year_list)
 
     st.write('')
 
@@ -18,12 +18,11 @@ def GetCategory(st, category_list):
     col = st.columns((0.6, 0.3, 1), gap='medium')
 
     with col[1]:
-        selected_year = st.selectbox('Select a Category', category_list, index=0)
+        selected_year = st.sidebar.selectbox('Select a Category', category_list, index=0)
 
     st.write('')
 
     return selected_year
-
 
 def GetOption(st):
 
@@ -32,7 +31,7 @@ def GetOption(st):
     col = st.columns((0.6, 0.3, 1), gap='medium')
 
     with col[1]:
-        selected_year = st.selectbox('Select a year', option_list, index=0)
+        selected_year = st.sidebar.selectbox('Select an option', option_list, index=0)
 
     return selected_year
 
@@ -52,11 +51,11 @@ def SetPageConfiguration(st, alt):
 
 def PlotMonthlyBudget(st, df):
 
-    col = st.columns((0.1, 1), gap='medium')
+    col = st.columns((0.15, 1.0, 0.35), gap='medium')
 
     with col[1]:
-        #st.markdown('#### Monthly')1
-        st.dataframe(df)
+        st.markdown('#### Budget')
+        st.dataframe(df, width=1200)
 
 def PlotPieChart(st, budget_data):
 
