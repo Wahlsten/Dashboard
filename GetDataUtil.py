@@ -52,7 +52,7 @@ def CreateYearDataframe(budget_df, year_options):
             current_month = 12
 
         tmp_data = dict({
-            'Inkomst' :     round(year_df[year_df.category == 'Inkomst'].cost.sum() / current_month),
+            'Inkomst' :      round(year_df[year_df.category == 'Inkomst'].cost.sum() / current_month),
             'Mat' :         -round(year_df[year_df.category == 'Mat'].cost.sum() / current_month),
             'Hyra' :        -round(year_df[year_df.category == 'Hyra'].cost.sum() / current_month),
             'Kläder' :      -round(year_df[year_df.category == 'KlAder'].cost.sum() / current_month),
@@ -64,6 +64,69 @@ def CreateYearDataframe(budget_df, year_options):
             })
         tmp_data['Sparande'] =  tmp_data['Inkomst'] - tmp_data['Hyra'] - tmp_data['Mat'] - tmp_data['Kläder'] - tmp_data['Transport'] \
                               - tmp_data['Ovrig fast'] - tmp_data['Ovrig'] - tmp_data['Ränta'] - tmp_data['Amortering']
+
+        tmp_data_list.append(tmp_data)
+
+    df_tmp = pd.DataFrame(tmp_data_list, index=year_options)
+    df_tmp.index.name = 'Year'
+    df_tmp.index = df_tmp.index.astype(str)
+
+    return df_tmp
+
+def CreateYearAssetLoanDataframe(asset_df, year_options):
+
+    tmp_data_list = []
+
+    for year in year_options:
+        year_df = asset_df[asset_df['year'].dt.year == year]
+
+        if year == date.today().year:
+            current_month = max(date.today().month - 1, 1)
+        else:
+            current_month = 12
+
+        tmp_data = dict({
+            'Konto' :       round(year_df['konto']),
+            'Buffert' :     round(year_df['buffert']),
+            'Sparande' :    round(year_df['sparande']),
+            'Aktier' :      round(year_df['aktier']),
+            'Certifikat' :  round(year_df['certifikat']),
+            'ETF' :         round(year_df['ETF']),
+            'Fonder' :      round(year_df['fonder']),
+            'Indexfonder' : round(year_df['indexfonder']),
+            'Apartment' :   round(year_df['apartment']),
+            })
+        #tmp_data['Sparande'] =  tmp_data['Inkomst'] - tmp_data['Hyra'] - tmp_data['Mat'] - tmp_data['Kläder'] - tmp_data['Transport'] \
+        #                      - tmp_data['Ovrig fast'] - tmp_data['Ovrig'] - tmp_data['Ränta'] - tmp_data['Amortering']
+
+        tmp_data_list.append(tmp_data)
+
+    df_tmp = pd.DataFrame(tmp_data_list, index=year_options)
+    df_tmp.index.name = 'Year'
+    df_tmp.index = df_tmp.index.astype(str)
+
+    return df_tmp
+
+def CreateYearLoanDataframe(asset_df, year_options):
+
+    tmp_data_list = []
+
+    asset_columns = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment']
+    loan_columns  = ['csn', 'mamma', 'danskebank']
+
+    for year in year_options:
+        year_df = asset_df[asset_df['year'].dt.year == year]
+
+        if year == date.today().year:
+            current_month = max(date.today().month - 1, 1)
+        else:
+            current_month = 12
+
+        tmp_data = dict({
+            'CSN' :        round(year_df['csn'].sum() / current_month),
+            'Mamma' :      round(year_df['mamma'].sum() / current_month),
+            'DanskeBank' : round(year_df['danskebank'].sum() / current_month),
+            })
 
         tmp_data_list.append(tmp_data)
 
@@ -106,10 +169,10 @@ def CreateAssetLoanDataFrame(df_selected_year):
     
     # Define categories and months
     asset_columns = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment']
-    loan_columns = ['csn', 'mamma', 'danskebank']
-    asset_names = ['Konto', 'Buffert', 'Sparande', 'Aktier', 'Certifikat', 'ETF', 'Fonder', 'Indexfonder', 'Lägenhet']
-    loan_names = ['CSN', 'Mamma', 'Danske bank']
-    months = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December']
+    loan_columns  = ['csn', 'mamma', 'danskebank']
+    asset_names   = ['Konto', 'Buffert', 'Sparande', 'Aktier', 'Certifikat', 'ETF', 'Fonder', 'Indexfonder', 'Lägenhet']
+    loan_names    = ['CSN', 'Mamma', 'Danske bank']
+    months        = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December']
 
     # Helper function to extract monthly sums
     def calculate_monthly_sums(df, columns):
@@ -161,7 +224,13 @@ def GetYearAndCategoryOptions(dataframe):
 
     unique_year_list = list(dataframe['year'].dt.year.unique())
     unique_year_list.sort(reverse=True)
-    
-    category_list   = ['Inkomst', 'Mat', 'Hyra', 'Kläder', 'Transport', 'Ovrig fast', 'Ovrig', 'Ränta', 'Amortering', 'Sparande']
 
-    return unique_year_list, category_list
+    return unique_year_list    
+
+def GetCategory(option):
+    if option == 'Budget':
+        category_list = ['Inkomst', 'Mat', 'Hyra', 'Kläder', 'Transport', 'Ovrig fast', 'Ovrig', 'Ränta', 'Amortering', 'Sparande']
+    else:
+        category_list = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment']
+        
+    return category_list

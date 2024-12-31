@@ -18,7 +18,18 @@ def GetCategory(st, category_list):
     col = st.columns((0.6, 0.3, 1), gap='medium')
 
     with col[1]:
-        selected_year = st.sidebar.selectbox('Select a Category', category_list, index=0)
+        selected_year = st.sidebar.multiselect('Select a category', options = category_list, default = category_list[0])
+
+    st.write('')
+
+    return selected_year
+
+def GetLineOption(st, category_list):
+
+    col = st.columns((0.6, 0.3, 1), gap='medium')
+
+    with col[1]:
+        selected_year = st.sidebar.selectbox('Select a line option', category_list, index=0)
 
     st.write('')
 
@@ -65,8 +76,7 @@ def PlotPieChart(st, budget_data):
         data_pie = px.pie(
             names  = budget_data.keys(),
             values = budget_data.values(),
-            height= 750,
-            title  = 'Budget'
+            height = 600
         )
         
         data_pie.update_traces(textposition='inside', textinfo='percent+label')
@@ -77,13 +87,28 @@ def PlotHistogram(st, df, category):
     col = st.columns((0.15, 1.0, 0.35), gap='medium')
 
     with col[1]:
-        fig = px.bar(df, y=category, title=category)
+        fig = px.bar(df, y=category, title=category[0])
         fig.update_layout(
             yaxis_title="SEK",
-            title=dict(text=category, x=0.5),
-            height = 750,
-            bargap = 0.5
+            title=dict(text=category[0], x=0.5),
+            bargap = 0.5,
+            height = 600,
+            width  = 1200
             )
+        st.plotly_chart(fig)
+
+def PlotLine(st, df, category):
+
+    col = st.columns((0.15, 1.0, 0.35), gap='medium')
+
+    with col[1]:
+        fig = px.line(df, y=category, title=category[0])
+        fig.update_layout(
+            yaxis_title="SEK",
+            #title=dict(text=category[0], x=0.5),
+            height = 600,
+            width = 1200
+        )
         st.plotly_chart(fig)
 
 def PlotAssetsAndLoans(st, df_assets, df_loans):
