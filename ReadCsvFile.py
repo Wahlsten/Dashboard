@@ -1,10 +1,11 @@
 import pandas as pd
 from openpyxl import load_workbook
+import TransformerModel as tf_model
 
 def PreprocessData(df):
 
-    df_cleaned = df.applymap(lambda x: x.translate(str.maketrans('åäöÅÄÖ ()-*%&_:.,', 'aaoAAO          .')) if isinstance(x, str) else x)
-    df_cleaned = df_cleaned.applymap(lambda x: x.replace(' ', '') if isinstance(x, str) else x)
+    df_cleaned = df.map(lambda x: x.translate(str.maketrans('åäöÅÄÖ ()-*%&_:.,', 'aaoAAO          .')) if isinstance(x, str) else x)
+    df_cleaned = df_cleaned.map(lambda x: x.replace(' ', '') if isinstance(x, str) else x)
 
     df_cleaned.index = pd.to_datetime(df_cleaned.index)
     max_index = max(df_cleaned.index)
@@ -30,12 +31,20 @@ def PreprocessData(df):
     # Append the new row using pd.concat()
     df_cleaned = pd.concat([df_cleaned, mortgage_row, loan_row])
     df_cleaned['Belopp'] = df_cleaned['Belopp'].astype(float)
-    df_cleaned = df_cleaned.applymap(lambda x: x.translate(str.maketrans('0123456789', '          ')) if isinstance(x, str) else x)
-    df_cleaned = df_cleaned.applymap(lambda x: x.replace(' ', '') if isinstance(x, str) else x)
+    df_cleaned = df_cleaned.map(lambda x: x.translate(str.maketrans('0123456789', '          ')) if isinstance(x, str) else x)
+    df_cleaned = df_cleaned.map(lambda x: x.replace(' ', '') if isinstance(x, str) else x)
 
     return df_cleaned
 
-input_file_name = r'C:\Users\Quake\OneDrive\Dokument\Coding\Python\Other\Dashboard\DanskeKonto-12780647906-20241231.csv'
+def ClassifyData(sequence):
+
+    tokenized_seq  = tf_model.Tokenize(sequence)
+    model          = tf_model.LoadTransformer()
+    classified_seq = tf_model.PredictCategory(model, tokenized_seq)
+
+    return classified_seq
+
+input_file_name = r'C:\Users\Quake\OneDrive\Dokument\Coding\Python\Other\Dashboard\DanskeKonto-12780647906-20250202.csv'
 ouput_file_name = r'C:\Users\Quake\OneDrive\Dokument\Coding\Python\OTher\Dashboard\BudgetCSVBackup.csv'
 
 # Read the CSV file
@@ -45,5 +54,11 @@ df = df.sort_index()
 df = df[['Specifikation', 'Belopp']]
 
 preprocess_df = PreprocessData(df)
+preprocess_df['Kategori'] = ClassifyData(preprocess_df['Specifikation'].to_numpy())
+
+preprocess_df['Belopp'] = preprocess_df.apply(
+    lambda row: -row['Belopp'] if row['Kategori'] != 'Inkomst' else row['Belopp'], axis=1
+)
+print(preprocess_df.head)
 
 preprocess_df.to_csv(ouput_file_name, mode='a', index=True, header=False)

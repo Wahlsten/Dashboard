@@ -1,6 +1,7 @@
 import altair as alt
 import pandas as pd
 from datetime import date
+import numpy as np
 
 def CreateTotalMonthData(df):
 
@@ -38,6 +39,63 @@ def FilterDataframe(dataframe, selected_year):
     df_selected_year = dataframe[dataframe['year'].dt.year == selected_year]
 
     return df_selected_year
+
+def CreateMonthDataframe(budget_df, year_options, resolution_option):
+
+    tmp_data_list = []
+    options = []
+    month_options = list(np.arange(1,13))
+    for year in year_options:
+
+        if resolution_option == 'Month':
+
+            for month in month_options:
+                year_df = budget_df[(budget_df['year'].dt.year == year) & (budget_df['year'].dt.month == month)]
+
+                tmp_data = dict({
+                    'Inkomst' :      round(year_df[year_df.category == 'Inkomst'].cost.sum()),
+                    'Mat' :         -round(year_df[year_df.category == 'Mat'].cost.sum()),
+                    'Hyra' :        -round(year_df[year_df.category == 'Hyra'].cost.sum()),
+                    'Kläder' :      -round(year_df[year_df.category == 'KlAder'].cost.sum()),
+                    'Transport' :   -round(year_df[year_df.category == 'Transport'].cost.sum()),
+                    'Ovrig fast' :  -round(year_df[year_df.category == 'Ovrig fast'].cost.sum()),
+                    'Ovrig' :       -round(year_df[year_df.category == 'Ovrig'].cost.sum()),
+                    'Ränta' :       -round(year_df[year_df.category == 'RAnta'].cost.sum()),
+                    'Amortering' :  -round(year_df[year_df.category == 'Amortering'].cost.sum()),
+                    })
+                tmp_data['Sparande'] =  tmp_data['Inkomst'] - tmp_data['Hyra'] - tmp_data['Mat'] - tmp_data['Kläder'] - tmp_data['Transport'] \
+                                      - tmp_data['Ovrig fast'] - tmp_data['Ovrig'] - tmp_data['Ränta'] - tmp_data['Amortering']
+
+                tmp_data_list.append(tmp_data)
+
+                if month < 10:
+                    options.append(str(year) + '-0' + str(month))
+                else:
+                    options.append(str(year) + '-' + str(month))
+        else:
+            year_df = budget_df[(budget_df['year'].dt.year == year)]
+            tmp_data = dict({
+                'Inkomst' :      round(year_df[year_df.category == 'Inkomst'].cost.sum()),
+                'Mat' :         -round(year_df[year_df.category == 'Mat'].cost.sum()),
+                'Hyra' :        -round(year_df[year_df.category == 'Hyra'].cost.sum()),
+                'Kläder' :      -round(year_df[year_df.category == 'KlAder'].cost.sum()),
+                'Transport' :   -round(year_df[year_df.category == 'Transport'].cost.sum()),
+                'Ovrig fast' :  -round(year_df[year_df.category == 'Ovrig fast'].cost.sum()),
+                'Ovrig' :       -round(year_df[year_df.category == 'Ovrig'].cost.sum()),
+                'Ränta' :       -round(year_df[year_df.category == 'RAnta'].cost.sum()),
+                'Amortering' :  -round(year_df[year_df.category == 'Amortering'].cost.sum()),
+                })
+            tmp_data['Sparande'] =  tmp_data['Inkomst'] - tmp_data['Hyra'] - tmp_data['Mat'] - tmp_data['Kläder'] - tmp_data['Transport'] \
+                                  - tmp_data['Ovrig fast'] - tmp_data['Ovrig'] - tmp_data['Ränta'] - tmp_data['Amortering']
+
+            tmp_data_list.append(tmp_data)
+            options.append(str(year))
+
+    df_tmp = pd.DataFrame(tmp_data_list, index=options)
+    df_tmp.index.name = 'Year'
+    df_tmp.index = df_tmp.index.astype(str)
+
+    return df_tmp
 
 def CreateYearDataframe(budget_df, year_options):
 
@@ -208,7 +266,7 @@ def CreateAssetLoanTotalDataFrame(df_assets, df_loan):
 def LoadBudgetData():
 
     # Load budget data 
-    dataframe  = pd.read_csv('C:/Users/Quake/OneDrive/Dokument/Coding/Python/Other/Dashboard/BudgetCSV.csv')
+    dataframe  = pd.read_csv('C:/Users/Quake/OneDrive/Dokument/Coding/Python/Other/Dashboard/BudgetCSVBackup.csv')
     dataframe['year'] = pd.to_datetime(dataframe['year'], format='%Y-%m-%d')
 
     return dataframe
@@ -220,17 +278,18 @@ def LoadAssetData():
 
     return dataframe
 
-def GetYearAndCategoryOptions(dataframe):
+def GetYearAndCategoryOptions():
 
-    unique_year_list = list(dataframe['year'].dt.year.unique())
-    unique_year_list.sort(reverse=True)
-
+    #unique_year_list = list(dataframe['year'].dt.year.unique())
+    #unique_year_list.sort(reverse=True)
+    #unique_year_list = list(map(str, arr))
+    unique_year_list = list(np.arange(2015, 2026, 1))
     return unique_year_list    
 
 def GetCategory(option):
     if option == 'Budget':
         category_list = ['Inkomst', 'Mat', 'Hyra', 'Kläder', 'Transport', 'Ovrig fast', 'Ovrig', 'Ränta', 'Amortering', 'Sparande']
     else:
-        category_list = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment']
+        category_list = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment', 'csn', 'danskebank', 'mamma']
         
     return category_list

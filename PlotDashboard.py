@@ -29,11 +29,23 @@ def GetLineOption(st, category_list):
     col = st.columns((0.6, 0.3, 1), gap='medium')
 
     with col[1]:
-        selected_year = st.sidebar.selectbox('Select a line option', category_list, index=0)
+        selected_option = st.sidebar.selectbox('Select a line option', category_list, index=0)
 
     st.write('')
 
-    return selected_year
+    return selected_option 
+
+def GetResolutionOption(st, resolution_list):
+
+    col = st.columns((0.6, 0.3, 1), gap='medium')
+
+    with col[1]:
+        selected_option = st.sidebar.selectbox('Select resolution', resolution_list, index=0)
+
+    st.write('')
+
+    return selected_option
+
 
 def GetOption(st):
 
@@ -49,7 +61,7 @@ def GetOption(st):
 def SetPageConfiguration(st, alt):
 
     st.set_page_config(
-        page_title="Budget",
+        page_title="Economy",
         layout="wide",
         initial_sidebar_state="expanded")
 
@@ -58,7 +70,7 @@ def SetPageConfiguration(st, alt):
     col = st.columns((1, 1, 1), gap='medium')
 
     with col[1]:
-        st.title("Budget")
+        st.title("Economy")
 
 def PlotMonthlyBudget(st, df):
 

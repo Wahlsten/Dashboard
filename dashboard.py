@@ -8,15 +8,16 @@ import PlotDashboard as plot_func
 
 plot_func.SetPageConfiguration(st, alt)
 
-budget_df = util_func.LoadBudgetData()
-
-year_options = util_func.GetYearAndCategoryOptions(budget_df)
+line_option_list       = ['Histogram', 'Line']
+resolution_option_list = ['Month', 'Year']
+year_options           = util_func.GetYearAndCategoryOptions()
 
 selected_option = plot_func.GetOption(st)
 selected_year   = plot_func.GetYear(st, year_options)
 category_list   = util_func.GetCategory(selected_option)
 
 if selected_option == 'Budget':
+    budget_df = util_func.LoadBudgetData()
     if selected_year != 'All':
         filtered_df      = util_func.FilterDataframe(budget_df, selected_year)
         month_df         = util_func.CreateMonthData(filtered_df)
@@ -25,12 +26,16 @@ if selected_option == 'Budget':
         plot_func.PlotPieChart(st, total_month_dict)
         plot_func.PlotMonthlyBudget(st, month_df)
     else:
-        total_month_df = util_func.CreateYearDataframe(budget_df, year_options)
-        category = plot_func.GetCategory(st, category_list)
+        plot_resolution = plot_func.GetResolutionOption(st, resolution_option_list)
+        total_month_df  = util_func.CreateMonthDataframe(budget_df, year_options, plot_resolution)
+        category        = plot_func.GetCategory(st, category_list)
 
         if category != []:
-            plot_func.PlotHistogram(st, total_month_df, category)
-            plot_func.PlotMonthlyBudget(st, total_month_df)
+            plot_category   = plot_func.GetLineOption(st, line_option_list)
+            if plot_category == 'Line':
+                plot_func.PlotLine(st, total_month_df, category)
+            else:
+                plot_func.PlotHistogram(st, total_month_df, category)
 
 elif selected_option == 'Assets and loans':
     asset_df = util_func.LoadAssetData()
@@ -41,7 +46,6 @@ elif selected_option == 'Assets and loans':
 
         plot_func.PlotAssetsAndLoans(st, df_assets, df_loans)
     else:
-        line_option_list = ['Histogram', 'Line']
         df_assets        = util_func.CreateYearAssetLoanDataframe(asset_df, year_options)
         df_loan          = util_func.CreateYearLoanDataframe(asset_df, year_options)
         category         = plot_func.GetCategory(st, category_list)
