@@ -1,7 +1,7 @@
-import altair as alt
 import pandas as pd
 from datetime import date
 import numpy as np
+import streamlit as st
 
 def CreateTotalMonthData(df):
 
@@ -263,6 +263,7 @@ def CreateAssetLoanTotalDataFrame(df_assets, df_loan):
 
     return df
 
+@st.cache_data
 def LoadBudgetData():
 
     # Load budget data 
@@ -271,6 +272,7 @@ def LoadBudgetData():
 
     return dataframe
 
+@st.cache_data
 def LoadAssetData():
 
     dataframe = pd.read_csv('C:/Users/Quake/OneDrive/Dokument/Coding/Python/Other/Dashboard/BudgetCSV2.csv')
@@ -278,18 +280,17 @@ def LoadAssetData():
 
     return dataframe
 
-def GetYearAndCategoryOptions():
+def GetCategories(option):
 
-    #unique_year_list = list(dataframe['year'].dt.year.unique())
-    #unique_year_list.sort(reverse=True)
-    #unique_year_list = list(map(str, arr))
-    unique_year_list = list(np.arange(2015, 2026, 1))
-    return unique_year_list    
-
-def GetCategory(option):
+    category_dict = {}
     if option == 'Budget':
-        category_list = ['Inkomst', 'Mat', 'Hyra', 'Kläder', 'Transport', 'Ovrig fast', 'Ovrig', 'Ränta', 'Amortering', 'Sparande']
+        category_dict['category_list'] = ['Inkomst', 'Mat', 'Hyra', 'Kläder', 'Transport', 'Ovrig fast', 'Ovrig', 'Ränta', 'Amortering', 'Sparande']
     else:
-        category_list = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment', 'csn', 'danskebank', 'mamma']
+        category_dict['category_list'] = ['konto', 'buffert', 'sparande', 'aktier', 'certifikat', 'ETF', 'fonder', 'indexfonder', 'apartment', 'csn', 'danskebank', 'mamma']
         
-    return category_list
+    category_dict['line_list'] = ['Histogram', 'Line']
+    category_dict['time_resolution'] = ['Month', 'Year']
+
+    category_dict['year'] = list(np.arange(2015, 2026, 1))
+
+    return category_dict
