@@ -17,16 +17,32 @@ def GetCategory(st, category_list):
 
     selected_option = {}
 
-    col = st.columns((0.6, 0.3, 1), gap='medium')
-
-    with col[0]:
-        selected_option['category'] = st.multiselect('Select a category', options = category_list['category_list'], default = category_list['category_list'][0])
+    col = st.columns((0.2, 0.2, 0.2, 0.2), gap='medium')
 
     with col[1]:
         selected_option['line'] = st.selectbox('Select a line option', category_list['line_list'], index=0)
 
     with col[2]:
         selected_option['time_resolution'] = st.selectbox('Select resolution 2', category_list['time_resolution'], index=0)
+
+    col2 = st.columns((0.1, 0.1, 0.1, 0.1, 0.1, 0.1), gap='medium')
+    selected_option_cat = []
+    with col2[0]:
+        selected_option_cat.append(st.multiselect('Select a category 1', options = category_list['category_list']))
+
+    if selected_option_cat[-1] != []:
+        with col2[1]:
+            selected_option_cat.append(st.multiselect('Select a category 2', options = category_list['category_list']))
+
+    if selected_option_cat[-1] != []:
+        with col2[2]:
+            selected_option_cat.append(st.multiselect('Select a category 3', options = category_list['category_list']))
+
+    if selected_option_cat[-1] != []:
+        with col2[3]:
+            selected_option_cat.append(st.multiselect('Select a category 4', options = category_list['category_list']))
+    
+    selected_option['category'] = selected_option_cat
 
     st.write('')
 
@@ -100,27 +116,26 @@ def PlotPieChart(st, budget_data):
         data_pie.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(data_pie)
 
-def PlotHistogram(st, df, category):
+def PlotHistogram(st, df, categories):
 
     col = st.columns((0.15, 1.0, 0.35), gap='medium')
 
     with col[1]:
-        fig = px.bar(df, y=category, title=category[0])
+        fig = px.bar(df, y=categories, barmode='group')
         fig.update_layout(
             yaxis_title="SEK",
-            title=dict(text=category[0], x=0.5),
             bargap = 0.5,
             height = 600,
             width  = 1200
             )
         st.plotly_chart(fig)
 
-def PlotLine(st, df, category):
+def PlotLine(st, df, categories):
 
     col = st.columns((0.15, 1.0, 0.35), gap='medium')
-
+    print(categories)
     with col[1]:
-        fig = px.line(df, y=category, title=category[0])
+        fig = px.line(df, y=categories)
         fig.update_layout(
             yaxis_title="SEK",
             #title=dict(text=category[0], x=0.5),

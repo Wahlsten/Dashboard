@@ -25,14 +25,16 @@ if selected_option == 'Budget':
         plot_func.PlotPieChart(st, total_month_dict)
         plot_func.PlotMonthlyBudget(st, month_df)
     else:
-        category        = plot_func.GetCategory(st, category_list)
-        total_month_df  = util_func.CreateMonthDataframe(budget_df, category_list['year'], category['time_resolution'])
+        category                = plot_func.GetCategory(st, category_list)
+        total_month_df          = util_func.CreateMonthDataframe(budget_df, category_list['year'], category['time_resolution'])
+        print(total_month_df)
+        filtered_df, categories = util_func.FilteredDataFrame(total_month_df, category['category'])
 
-        if category['category'] != []:
+        if categories != []:
             if category['line'] == 'Line':
-                plot_func.PlotLine(st, total_month_df, category['category'])
+                plot_func.PlotLine(st, filtered_df, categories)
             else:
-                plot_func.PlotHistogram(st, total_month_df, category['category'])
+                plot_func.PlotHistogram(st, filtered_df, categories)
 
 elif selected_option == 'Assets and loans':
     if selected_year != 'All':
@@ -42,15 +44,14 @@ elif selected_option == 'Assets and loans':
 
         plot_func.PlotAssetsAndLoans(st, df_assets, df_loans)
     else:
-        df_assets        = util_func.CreateYearAssetLoanDataframe(asset_df, category_list['year'])
-        df_loan          = util_func.CreateYearLoanDataframe(asset_df, category_list['year'])
-        category         = plot_func.GetCategory(st, category_list['category_list'])
-        plot_category    = plot_func.GetLineOption(st, category_list['line_list'])
-        asset_df         = asset_df.set_index("year")
-        asset_df         = asset_df.sort_index()
-
-        if category != []:
-            if plot_category == 'Line':
-                plot_func.PlotLine(st, asset_df, category)
+        category                = plot_func.GetCategory(st, category_list)
+        df_assets               = util_func.CreateYearAssetLoanDataframe(asset_df, category_list['year'], category['time_resolution'])
+        print(df_assets)
+        print(category['category'])
+        filtered_df, categories = util_func.FilteredDataFrame(df_assets, category['category'])
+        #df_loan          = util_func.CreateYearLoanDataframe(asset_df, category_list['year'])
+        if categories != []:
+            if category['line'] == 'Line':
+                plot_func.PlotLine(st, filtered_df, categories)
             else:
-                plot_func.PlotHistogram(st, asset_df, category)
+                plot_func.PlotHistogram(st, filtered_df, categories)

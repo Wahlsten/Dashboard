@@ -23,18 +23,25 @@ def InitializeModel(seq_length, d_model, num_heads, num_classes, num_layers):
     
     # Transformer Encoder Layers
     for _ in range(num_layers):
+
         # Multi-Head Attention
         attn_output = tf.keras.layers.MultiHeadAttention(num_heads=num_heads, key_dim=d_model)(x, x, x)
-        x = tf.keras.layers.Add()([x, attn_output])  # Residual connection
+
+        # Residual connection
+        x = tf.keras.layers.Add()([x, attn_output])
+
+        # Normalization layer
         x = tf.keras.layers.LayerNormalization(epsilon=1e-6)(x)
     
         # Feed-Forward Network
-        ffn = tf.keras.Sequential([
-            tf.keras.layers.Dense(4 * d_model, activation="relu"),
-            tf.keras.layers.Dense(d_model)
-        ])
+        ffn = tf.keras.Sequential([tf.keras.layers.Dense(4 * d_model, activation="relu"),
+                                   tf.keras.layers.Dense(d_model)])
         ffn_output = ffn(x)
-        x = tf.keras.layers.Add()([x, ffn_output])  # Residual connection
+
+        # Residual connection
+        x = tf.keras.layers.Add()([x, ffn_output])
+
+        # Normalization layer
         x = tf.keras.layers.LayerNormalization(epsilon=1e-6)(x)
     
     # Classification Head
@@ -125,10 +132,10 @@ def PredictCategory(model, seq):
 if __name__ == '__main__':
 
     # Input Parameters
-    d_model     = 8      # Dimension of the model
-    num_heads   = 2    # Number of attention heads
+    d_model     = 20 # Dimension of the model
+    num_heads   = 4  # Number of attention heads
     num_classes = 9  # Number of output classes
-    num_layers  = 2   # Number of Transformer encoder layers
+    num_layers  = 4  # Number of Transformer encoder layers
     
     model = InitializeModel(seq_length, d_model, num_heads, num_classes, num_layers)
 

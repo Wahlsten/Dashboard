@@ -44,7 +44,7 @@ def ClassifyData(sequence):
 
     return classified_seq
 
-input_file_name = r'C:\Users\Quake\OneDrive\Dokument\Coding\Python\Other\Dashboard\DanskeKonto-12780647906-20250301.csv'
+input_file_name = r'C:\Users\Quake\OneDrive\Dokument\Coding\Python\Other\Dashboard\DanskeKonto-12780647906-20250405.csv'
 ouput_file_name = r'C:\Users\Quake\OneDrive\Dokument\Coding\Python\OTher\Dashboard\BudgetCSVBackup.csv'
 
 # Read the CSV file
@@ -56,8 +56,8 @@ df = df[['Specifikation', 'Belopp']]
 preprocess_df = PreprocessData(df)
 preprocess_df['Kategori'] = ClassifyData(preprocess_df['Specifikation'].to_numpy())
 
-preprocess_df['Belopp'] = preprocess_df.apply(
-    lambda row: -row['Belopp'] if row['Kategori'] != 'Inkomst' else row['Belopp'], axis=1
-)
+preprocess_df['Belopp'] = preprocess_df.apply(lambda row: -row['Belopp'] if row['Kategori'] != 'Inkomst' else row['Belopp'], axis=1)
+
+print(preprocess_df)
 
 preprocess_df.to_csv(ouput_file_name, mode='a', index=True, header=False)

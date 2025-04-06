@@ -97,6 +97,18 @@ def CreateMonthDataframe(budget_df, year_options, resolution_option):
 
     return df_tmp
 
+def FilteredDataFrame(df, categories_list):
+    
+    df_result  = pd.DataFrame()
+    category_labels = []
+    for k, categories in enumerate(categories_list):
+        if categories != []:
+            print(df[categories])
+            df_result['category_' + str(k)] = df[categories].sum(axis=1)
+            category_labels.append('category_' + str(k))
+
+    return df_result, category_labels
+
 def CreateYearDataframe(budget_df, year_options):
 
     tmp_data_list = []
@@ -131,37 +143,67 @@ def CreateYearDataframe(budget_df, year_options):
 
     return df_tmp
 
-def CreateYearAssetLoanDataframe(asset_df, year_options):
+def CreateYearAssetLoanDataframe(asset_df, year_options, resolution_option):
 
     tmp_data_list = []
+    options       = []
+    month_options = list(np.arange(1,13))
 
     for year in year_options:
-        year_df = asset_df[asset_df['year'].dt.year == year]
 
-        if year == date.today().year:
-            current_month = max(date.today().month - 1, 1)
+        if resolution_option == 'Month':
+
+            for month in month_options:
+                year_df = asset_df[(asset_df['year'].dt.year == year) & (asset_df['year'].dt.month == month)]
+
+                tmp_data = dict({
+                        'konto' :       round(year_df['konto'].sum()),
+                        'buffert' :     round(year_df['buffert'].sum()),
+                        'sparande' :    round(year_df['sparande'].sum()),
+                        'aktier' :      round(year_df['aktier'].sum()),
+                        'certifikat' :  round(year_df['certifikat'].sum()),
+                        'ETF' :         round(year_df['ETF'].sum()),
+                        'fonder' :      round(year_df['fonder'].sum()),
+                        'indexfonder' : round(year_df['indexfonder'].sum()),
+                        'amortering' :  round(year_df['apartment'].sum()),
+                        'csn' :         round(year_df['csn'].sum()),
+                        'mamma' :       round(year_df['mamma'].sum()),
+                        'danskebank' :  round(year_df['danskebank'].sum())
+                    })
+
+                tmp_data_list.append(tmp_data)
+
+                if month < 10:
+                    options.append(str(year) + '-0' + str(month))
+                else:
+                    options.append(str(year) + '-' + str(month))
         else:
-            current_month = 12
 
-        tmp_data = dict({
-            'Konto' :       round(year_df['konto']),
-            'Buffert' :     round(year_df['buffert']),
-            'Sparande' :    round(year_df['sparande']),
-            'Aktier' :      round(year_df['aktier']),
-            'Certifikat' :  round(year_df['certifikat']),
-            'ETF' :         round(year_df['ETF']),
-            'Fonder' :      round(year_df['fonder']),
-            'Indexfonder' : round(year_df['indexfonder']),
-            'Apartment' :   round(year_df['apartment']),
-            })
-        #tmp_data['Sparande'] =  tmp_data['Inkomst'] - tmp_data['Hyra'] - tmp_data['Mat'] - tmp_data['Kläder'] - tmp_data['Transport'] \
-        #                      - tmp_data['Ovrig fast'] - tmp_data['Ovrig'] - tmp_data['Ränta'] - tmp_data['Amortering']
+            year_df = asset_df[(asset_df['year'].dt.year == year)]
+            tmp_data = dict({
+                    'konto' :       round(year_df['konto'].sum()),
+                    'buffert' :     round(year_df['buffert'].sum()),
+                    'sparande' :    round(year_df['sparande'].sum()),
+                    'aktier' :      round(year_df['aktier'].sum()),
+                    'certifikat' :  round(year_df['certifikat'].sum()),
+                    'ETF' :         round(year_df['ETF'].sum()),
+                    'fonder' :      round(year_df['fonder'].sum()),
+                    'indexfonder' : round(year_df['indexfonder'].sum()),
+                    'amortering' :  round(year_df['apartment'].sum()),
+                    'csn' :         round(year_df['csn'].sum()),
+                    'mamma' :       round(year_df['mamma'].sum()),
+                    'danskebank' :  round(year_df['danskebank'].sum())
+                })
+            
+            tmp_data_list.append(tmp_data)
+            options.append(str(year))
 
-        tmp_data_list.append(tmp_data)
-
-    df_tmp = pd.DataFrame(tmp_data_list, index=year_options)
+    df_tmp = pd.DataFrame(tmp_data_list, index=options)
     df_tmp.index.name = 'Year'
     df_tmp.index = df_tmp.index.astype(str)
+
+    #asset_df = asset_df.set_index("year")
+    #asset_df = asset_df.sort_index()
 
     return df_tmp
 
